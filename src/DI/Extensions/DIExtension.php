@@ -17,6 +17,9 @@ use Nette;
  */
 final class DIExtension extends Nette\DI\CompilerExtension
 {
+	/** @var string[] */
+	public $exportedTags = [];
+
 	/** @var bool */
 	private $debugMode;
 
@@ -42,6 +45,8 @@ final class DIExtension extends Nette\DI\CompilerExtension
 		$this->config->export = new class {
 			/** @var bool */
 			public $parameters = true;
+			/** @var string[]|bool|null */
+			public $tags = true;
 		};
 		$this->config->debugger = interface_exists(\Tracy\IBarPanel::class);
 	}
@@ -61,6 +66,7 @@ final class DIExtension extends Nette\DI\CompilerExtension
 		}
 
 		$this->exportParameters($class);
+		$this->exportTags($class);
 
 		if ($this->debugMode && $this->config->debugger) {
 			$this->enableTracyIntegration($class);
@@ -75,6 +81,18 @@ final class DIExtension extends Nette\DI\CompilerExtension
 		if (!$this->config->export->parameters) {
 			$class->getMethod('__construct')
 				->addBody('parent::__construct($params);');
+		}
+	}
+
+
+	private function exportTags(Nette\PhpGenerator\ClassType $class): void
+	{
+		$option = $this->config->export->tags;
+		if (!$option) {
+			$class->removeProperty('tags');
+		} elseif (is_array($option) && isset($class->getProperties()['tags'])) {
+			$prop = $class->getProperty('tags');
+			$prop->value = array_intersect_key($prop->value, $this->exportedTags + array_flip($option));
 		}
 	}
 

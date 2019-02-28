@@ -175,6 +175,18 @@ class Compiler
 	}
 
 
+	/**
+	 * @return static
+	 */
+	public function addExportedTag(string $tag)
+	{
+		if (isset($this->extensions['di'])) {
+			$this->extensions['di']->exportedTags[$tag] = true;
+		}
+		return $this;
+	}
+
+
 	public function compile(): string
 	{
 		$this->processExtensions();
