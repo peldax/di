@@ -36,6 +36,12 @@ final class DIExtension extends Nette\DI\CompilerExtension
 			public $excluded = [];
 			/** @var ?string */
 			public $parentClass;
+			/** @var object */
+			public $export;
+		};
+		$this->config->export = new class {
+			/** @var bool */
+			public $parameters = true;
 		};
 		$this->config->debugger = interface_exists(\Tracy\IBarPanel::class);
 	}
@@ -54,11 +60,22 @@ final class DIExtension extends Nette\DI\CompilerExtension
 			$class->setExtends($this->config->parentClass);
 		}
 
+		$this->exportParameters($class);
+
 		if ($this->debugMode && $this->config->debugger) {
 			$this->enableTracyIntegration($class);
 		}
 
 		$this->initializeTaggedServices($class);
+	}
+
+
+	private function exportParameters(Nette\PhpGenerator\ClassType $class): void
+	{
+		if (!$this->config->export->parameters) {
+			$class->getMethod('__construct')
+				->addBody('parent::__construct($params);');
+		}
 	}
 
 
