@@ -20,6 +20,9 @@ final class DIExtension extends Nette\DI\CompilerExtension
 	/** @var string[] */
 	public $exportedTags = [];
 
+	/** @var string[] */
+	public $exportedTypes = [];
+
 	/** @var bool */
 	private $debugMode;
 
@@ -47,6 +50,8 @@ final class DIExtension extends Nette\DI\CompilerExtension
 			public $parameters = true;
 			/** @var string[]|bool|null */
 			public $tags = true;
+			/** @var string[]|bool|null */
+			public $types = true;
 		};
 		$this->config->debugger = interface_exists(\Tracy\IBarPanel::class);
 	}
@@ -67,6 +72,7 @@ final class DIExtension extends Nette\DI\CompilerExtension
 
 		$this->exportParameters($class);
 		$this->exportTags($class);
+		$this->exportTypes($class);
 
 		if ($this->debugMode && $this->config->debugger) {
 			$this->enableTracyIntegration($class);
@@ -94,6 +100,15 @@ final class DIExtension extends Nette\DI\CompilerExtension
 			$prop = $class->getProperty('tags');
 			$prop->value = array_intersect_key($prop->value, $this->exportedTags + array_flip($option));
 		}
+	}
+
+
+	private function exportTypes(Nette\PhpGenerator\ClassType $class): void
+	{
+		$option = $this->config->export->types;
+		$exported = $option === true ? null : $this->exportedTypes + array_flip(is_array($option) ? $option : []);
+		$data = $this->getContainerBuilder()->exportTypes($exported);
+		$class->addProperty('wiring')->setVisibility('protected')->setValue($data);
 	}
 
 

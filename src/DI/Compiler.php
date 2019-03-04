@@ -187,6 +187,18 @@ class Compiler
 	}
 
 
+	/**
+	 * @return static
+	 */
+	public function addExportedType(string $type)
+	{
+		if (isset($this->extensions['di'])) {
+			$this->extensions['di']->exportedTypes[$type] = true;
+		}
+		return $this;
+	}
+
+
 	public function compile(): string
 	{
 		$this->processExtensions();

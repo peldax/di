@@ -360,6 +360,16 @@ class ContainerBuilder
 		$meta['aliases'] = $this->aliases;
 		ksort($meta['aliases']);
 
+		$meta['wiring'] = $this->exportTypes();
+		return $meta;
+	}
+
+
+	/**
+	 * @internal
+	 */
+	public function exportTypes(array $limit = null): array
+	{
 		$all = [];
 		foreach ($this->definitions as $name => $def) {
 			if ($type = $def->getType()) {
@@ -370,15 +380,20 @@ class ContainerBuilder
 		}
 
 		[$low, $high] = $this->autowiring->getClassList();
+		if (is_array($limit)) {
+			$all = array_intersect_key($all, $limit);
+		}
+
+		$wiring = [];
 		foreach ($all as $class => $names) {
-			$meta['wiring'][$class] = array_filter([
+			$wiring[$class] = array_filter([
 				$high[$class] ?? [],
 				$low[$class] ?? [],
 				array_diff($names, $low[$class] ?? [], $high[$class] ?? []),
 			]);
 		}
 
-		return $meta;
+		return $wiring;
 	}
 
 
