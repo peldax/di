@@ -357,7 +357,7 @@ class ContainerBuilder
 			}
 		}
 
-		$meta['aliases'] = $this->aliases;
+		$meta['aliases'] = array_intersect($this->aliases, array_keys($defs));
 		ksort($meta['aliases']);
 
 		$all = [];
