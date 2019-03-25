@@ -233,6 +233,7 @@ class Compiler
 	{
 		$context = new Nette\Schema\Context;
 		$context->path = $name ? [$name] : [];
+		$context->dynamics = &$this->extensions[self::PARAMETERS]->dynamicValidators;
 		try {
 			return (new Nette\Schema\Processor)->processMultiple($schema, $configs, $context);
 		} catch (Nette\Schema\ValidationException $e) {
