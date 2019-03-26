@@ -79,7 +79,7 @@ class DefinitionSchema implements Schema
 					trigger_error("Service '$key': option 'class' should be changed to 'factory'.", E_USER_DEPRECATED);
 					$def['factory'] = $def['class'];
 					unset($def['class']);
-				} elseif (!isset($def['factory'])) {
+				} elseif (!isset($def['factory']) && !isset($def['dynamic']) && !isset($def['imported'])) {
 					$def['factory'] = $def['class'];
 					unset($def['class']);
 				}
